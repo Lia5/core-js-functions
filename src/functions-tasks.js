@@ -100,24 +100,25 @@ function memoize(func) {
     return cached;
   };
 }
-
 /**
  * Returns the function trying to call the passed function and if it throws,
  * retrying it specified number of attempts.
- *
- * @param {Function} func
- * @param {number} attempts
- * @return {Function}
- *
- * @example
- * const attempt = 0, retryer = retry(() => {
- *      if (++attempt % 2) throw new Error('test');
- *      else return attempt;
- * }, 2);
- * retryer() => 2
  */
-function retry(/* func, attempts */) {
-  throw new Error('Not implemented');
+function retry(func, attempts) {
+  return function retryWrapper(...args) {
+    for (let i = 0; i < attempts; i += 1) {
+      try {
+        return func.apply(this, args);
+      } catch (e) {
+        if (i === attempts - 1) throw e;
+      }
+    }
+    return undefined;
+  };
+}
+
+/**
+ * Returns the logging wrapper for the
 }
 
 /**
@@ -143,8 +144,17 @@ function retry(/* func, attempts */) {
  * cos(3.141592653589793) ends
  *
  */
-function logger(/* func, logFunc */) {
-  throw new Error('Not implemented');
+function logger(func, logFunc) {
+  return function logger2(...args) {
+    const argStr = args.map((arg) => JSON.stringify(arg)).join(', ');
+    const logPrefix = `${func.name}(${argStr})`;
+
+    logFunc(`${logPrefix} starts`);
+    const result = func(...args);
+    logFunc(`${logPrefix} ends`);
+
+    return result;
+  };
 }
 
 /**
@@ -160,8 +170,10 @@ function logger(/* func, logFunc */) {
  *   partialUsingArguments(fn, 'a','b','c')('d') => 'abcd'
  *   partialUsingArguments(fn, 'a','b','c','d')() => 'abcd'
  */
-function partialUsingArguments(/* fn, ...args1 */) {
-  throw new Error('Not implemented');
+function partialUsingArguments(fn, ...args1) {
+  return function res(...args2) {
+    return fn(...args1, ...args2);
+  };
 }
 
 /**
