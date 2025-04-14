@@ -53,25 +53,16 @@ function getFunctionBody(func) {
 function getArgumentsCount(funcs) {
   return funcs.map((func) => func.length);
 }
-
 /**
  * Returns the math power function with the specified exponent
  *
  * @param {number} exponent
  * @return {Function}
- *
- * @example
- *   const power2 = getPowerFunction(2); // => x^2
- *   power2(2) => 4
- *   power2(4) => 16
- *
- *   const power05 = getPowerFunction(0.5); // => x^0.5
- *   power05(4) => 2
- *   power05(16) => 4
- *
  */
-function getPowerFunction(/* exponent */) {
-  throw new Error('Not implemented');
+function getPowerFunction(exponent) {
+  return function power(base) {
+    return base ** exponent;
+  };
 }
 
 /**
@@ -80,15 +71,14 @@ function getPowerFunction(/* exponent */) {
  *
  * @params {integer}
  * @return {Function}
- *
- * @example
- *   getPolynom(2,3,5) => y = 2*x^2 + 3*x + 5
- *   getPolynom(1,-3)  => y = x - 3
- *   getPolynom(8)     => y = 8
- *   getPolynom()      => null
  */
-function getPolynom() {
-  throw new Error('Not implemented');
+function getPolynom(...coefficients) {
+  if (coefficients.length === 0) return null;
+  return function polynom(x) {
+    return coefficients.reduce((sum, coef, index) => {
+      return sum + coef * x ** (coefficients.length - 1 - index);
+    }, 0);
+  };
 }
 
 /**
@@ -97,16 +87,18 @@ function getPolynom() {
  *
  * @params {Function} func - function to memoize
  * @return {Function} memoized function
- *
- * @example
- *   const memoizer = memoize(() => Math.random());
- *   memoizer() => some random number  (first run, evaluates the result of Math.random())
- *   memoizer() => the same random number  (second run, returns the previous cached result)
- *   ...
- *   memoizer() => the same random number  (next run, returns the previous cached result)
  */
-function memoize(/* func */) {
-  throw new Error('Not implemented');
+function memoize(func) {
+  let cached = null;
+  let hasRun = false;
+
+  return function memoized(...args) {
+    if (!hasRun) {
+      cached = func.apply(this, args);
+      hasRun = true;
+    }
+    return cached;
+  };
 }
 
 /**
