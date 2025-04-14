@@ -33,7 +33,14 @@ function getCurrentFunctionName() {
  *
  */
 function getFunctionBody(func) {
-  return func.toString().replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!func) return '';
+  const funcName = func.name || '';
+  return `function ${funcName}() {
+        ${func
+          .toString()
+          .replace(/^[^{]*{\s*/, '')
+          .replace(/\s*}[^}]*$/, '')}
+      }`;
 }
 /**
  * Returns the array where each element is the count of function arguments.
