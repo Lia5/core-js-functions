@@ -33,9 +33,8 @@ function getCurrentFunctionName() {
  *
  */
 function getFunctionBody(func) {
-  return func.toString();
+  return func.toString().replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
 }
-
 /**
  * Returns the array where each element is the count of function arguments.
  *
@@ -145,14 +144,23 @@ function retry(func, attempts) {
  *
  */
 function logger(func, logFunc) {
-  return function logger2(...args) {
-    const argStr = args.map((arg) => JSON.stringify(arg)).join(', ');
-    const logPrefix = `${func.name}(${argStr})`;
+  const funcName = func.name || 'anonymous';
+  return function res(...args) {
+    const argsStr = args
+      .map((arg) => {
+        if (Array.isArray(arg)) {
+          return JSON.stringify(arg);
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          return JSON.stringify(arg);
+        }
+        return String(arg);
+      })
+      .join(',');
 
-    logFunc(`${logPrefix} starts`);
-    const result = func(...args);
-    logFunc(`${logPrefix} ends`);
-
+    logFunc(`${funcName}(${argsStr}) starts`);
+    const result = func.apply(this, args);
+    logFunc(`${funcName}(${argsStr}) ends`);
     return result;
   };
 }
